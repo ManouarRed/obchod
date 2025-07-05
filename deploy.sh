@@ -1,60 +1,52 @@
 #!/bin/bash
+
+
+# Exit immediately if a command exits with a non-zero status.
 set -e
-set -o pipefail
 
-echo "=== Starting Deployment ==="
+echo "Starting deployment script..."
 
-# Check commands exist except pm2 globally
-for cmd in curl git node npm; do
-  if ! command -v $cmd >/dev/null 2>&1; then
-    echo "Error: $cmd is required but not installed."
-    exit 1
-  fi
-done
-
-# Setup NVM (install if needed)
+# --- NVM and Node.js Setup ---
+echo "Installing NVM and Node.js v20..."
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
 export NVM_DIR="$HOME/.nvm"
-if [ ! -s "$NVM_DIR/nvm.sh" ]; then
-  echo "--- Installing NVM ---"
-  curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
-fi
-. "$NVM_DIR/nvm.sh"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+nvm install 20
+nvm use 20
+nvm alias default 20
+node -v
+npm -v
 
-REQUIRED_NODE_VERSION=20
-CURRENT_NODE_VERSION=$(node -v | cut -d'.' -f1 | sed 's/v//')
-
-if [ -z "$CURRENT_NODE_VERSION" ] || [ "$CURRENT_NODE_VERSION" -lt "$REQUIRED_NODE_VERSION" ]; then
-  echo "--- Installing Node.js $REQUIRED_NODE_VERSION via NVM ---"
-  nvm install $REQUIRED_NODE_VERSION
-fi
-
-nvm use $REQUIRED_NODE_VERSION
-nvm alias default $REQUIRED_NODE_VERSION
-
-echo "--- Node.js version: $(node -v) ---"
-echo "--- npm version: $(npm -v) ---"
-
-# Build frontend
-echo "--- Building frontend ---"
-cd front || { echo "front directory missing"; exit 1; }
-npm install
-npm run build
-cd ..
-
-# Install backend dependencies (including pm2 locally)
-echo "--- Installing backend dependencies ---"
-cd back || { echo "back directory missing"; exit 1; }
-npm install
-cd ..
-
-
-# Start backend with pm2 using npx (no global install needed)
-echo "--- Starting backend with PM2 (using npx) ---"
+# --- Backend Deployment ---
+echo "Navigating to backend directory..."
 cd back
-# Delete old pm2 process if exists, ignore errors
-npx pm2 delete pos-backend 2>/dev/null || true
-npx pm2 start server.js --name pos-backend --watch
-npx pm2 save
-cd ..
 
-echo "=== Deployment finished successfully ==="
+# Create .env file from HostCreators environment variable
+# This relies on you setting the ENV_FILE_CONTENT variable in your HostCreators panel.
+echo "Creating .env file from ENV_FILE_CONTENT..."
+echo "$ENV_FILE_CONTENT" > .env
+
+echo "Installing backend dependencies..."
+npm install --production
+
+echo "Starting backend server..."
+# IMPORTANT: This 'npm start &'-command only initiates the server.
+# You MUST configure your HostCreators panel to ensure this Node.js process
+# runs persistently and is restarted if it crashes or the server reboots.
+# Consult HostCreators documentation on how to manage Node.js applications.
+npm start &
+
+# --- Frontend Deployment ---
+echo "Navigating to frontend directory..."
+cd ../front
+
+echo "Installing frontend dependencies..."
+npm install
+
+echo "Building frontend for production..."
+npm run build
+
+
+
+echo "Deployment complete!"
