@@ -1,5 +1,11 @@
 #!/bin/bash
 
+# Redirect all output to output.log
+exec > output.log 2>&1
+
+# Exit immediately if a command exits with a non-zero status.
+set -e
+
 echo "Starting deployment script..."
 
 # --- NVM and Node.js Setup ---
@@ -19,6 +25,7 @@ echo "Navigating to backend directory..."
 cd back
 
 # Create .env file from HostCreators environment variable
+# This relies on you setting the ENV_FILE_CONTENT variable in your HostCreators panel.
 echo "Creating .env file from ENV_FILE_CONTENT..."
 echo "$ENV_FILE_CONTENT" > .env
 
@@ -26,8 +33,10 @@ echo "Installing backend dependencies..."
 npm install --production
 
 echo "Starting backend server..."
-# Assuming your hosting environment will manage process persistence
-# and that the 'start' script in package.json will correctly bind to the host's assigned port.
+# IMPORTANT: This 'npm start &'-command only initiates the server.
+# You MUST configure your HostCreators panel to ensure this Node.js process
+# runs persistently and is restarted if it crashes or the server reboots.
+# Consult HostCreators documentation on how to manage Node.js applications.
 npm start &
 
 # --- Frontend Deployment ---
@@ -38,10 +47,10 @@ echo "Installing frontend dependencies..."
 npm install
 
 echo "Building frontend for production..."
-# VITE_API_BASE_URL is passed as an environment variable from your hosting
 npm run build
 
 echo "Copying built frontend files to the project root..."
+# This assumes your web server is configured to serve static files from the project root.
 # Remove existing built files from root to ensure clean deployment
 rm -rf ../assets ../index.html ../*.js ../*.css # Add more patterns if other file types are generated at root
 
