@@ -24,6 +24,10 @@ npm -v
 echo "Navigating to backend directory..."
 cd back
 
+# Create .env file from HostCreators environment variable
+echo "Creating .env file from ENV_FILE_CONTENT..."
+echo "$ENV_FILE_CONTENT" > .env
+
 echo "Installing backend dependencies..."
 npm install --production
 
@@ -42,5 +46,15 @@ npm install
 echo "Building frontend for production..."
 # VITE_API_BASE_URL is passed as an environment variable from your hosting
 npm run build
+
+echo "Copying built frontend files to the project root..."
+# Remove existing built files from root to ensure clean deployment
+rm -rf ../assets ../index.html ../*.js ../*.css # Add more patterns if other file types are generated at root
+
+# Move contents of dist to the project root
+mv dist/* ../
+
+# Clean up the now empty dist directory
+rmdir dist
 
 echo "Deployment complete!"
