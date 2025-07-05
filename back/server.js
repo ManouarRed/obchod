@@ -95,7 +95,7 @@ app.use((err, req, res, next) => {
     await initializeDatabaseSchema();
     app.listen(PORT, () => {
       console.log(`Server listening on ${process.env.API_BASE_URL || `http://localhost:${PORT}`}`);
-      console.log(`Frontend served from: ${frontendDist}`);
+      
       console.log(`API available under /api`);
     });
   } catch (err) {
