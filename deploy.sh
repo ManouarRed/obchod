@@ -1,7 +1,7 @@
 #!/bin/bash
 
  - # Redirect all output to output.txt                                                     │
- │    4    - exec > output.txt 2>&1
+  exec > output.txt 2>&1
 
 # Exit immediately if a command exits with a non-zero status.
 set -e
