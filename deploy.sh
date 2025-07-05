@@ -40,8 +40,4 @@ echo "Building frontend for production..."
 # VITE_API_BASE_URL is passed as an environment variable from your hosting
 npm run build
 
-echo "Copying built frontend files to the project root..."
-# This assumes the web server will serve the 'dist' folder directly from the project root.
-mv dist ../
-
 echo "Deployment complete!"
