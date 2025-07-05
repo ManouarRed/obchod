@@ -27,8 +27,8 @@ async function enrichProductData(connection, productRow) {
         title: productRow.title,
         code: productRow.code,
         price: parseFloat(productRow.price),
-        image: productRow.image ? `${process.env.API_BASE_URL || 'http://localhost:3001'}${productRow.image}` : '',
-        fullSizeImage: productRow.full_size_image ? `${process.env.API_BASE_URL || 'http://localhost:3001'}${productRow.full_size_image}` : '',
+        image: productRow.image ? `${process.env.API_BASE_URL}${productRow.image}` : '',
+fullSizeImage: productRow.full_size_image ? `${process.env.API_BASE_URL}${productRow.full_size_image}` : '',,
         categoryId: productRow.category_uuid, // Send category public UUID
         manufacturerId: productRow.manufacturer_uuid, // Send manufacturer public UUID
         categoryName: categoryRows.length > 0 ? categoryRows[0].name : 'N/A',
