@@ -1,10 +1,5 @@
 #!/bin/bash
 
-
-
-# Exit immediately if a command exits with a non-zero status.
-set -e
-
 echo "Starting deployment script..."
 
 # --- NVM and Node.js Setup ---
