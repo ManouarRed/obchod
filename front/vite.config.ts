@@ -11,22 +11,14 @@ export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, path.resolve(__dirname, '..'), '');
 
   return {
-    
     define: {
-      'import.meta.env.VITE_API_BASE_URL': JSON.stringify(env.VITE_API_BASE_URL)
+      'process.env.API_KEY': JSON.stringify(env.GEMINI_API_KEY),
+      'process.env.GEMINI_API_KEY': JSON.stringify(env.GEMINI_API_KEY),
+      'import.meta.env.VITE_API_BASE_URL': JSON.stringify('https://obchod.manouar.eu/api')
     },
     resolve: {
       alias: {
-        '@': path.resolve(__dirname, '.'), // adjust if your source root is different
-      }
-    },
-    server: {
-      proxy: {
-        '/api': {
-          target: env.VITE_API_BASE_URL,
-          changeOrigin: true,
-          secure: false,
-        }
+        '@': path.resolve(__dirname, '.')
       }
     }
   };
